@@ -19,7 +19,7 @@ $ docker run --rm -it \
 ## 3. Ejecute el proyecto
 Nos posicionamos en la carpeta `practica`
 
-Creamos un archivo `.env` con el siguiente contenido
+Los datos de conexión a la BD están en el archivo `.env`
 ```ini
 DB_USER='usuario'
 DB_PASS='secr3t'
