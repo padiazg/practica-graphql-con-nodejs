@@ -8,7 +8,8 @@ const bodyParser = require('body-parser');
 const app = express();
 
 const restMiddleware = require("./rest-middleware");
-const graphqlMiddleware = require("./graphql-middleware");
+const schema = require("./graphql-middleware");
+const { ApolloServer } = require("apollo-server-express");
 
 debug("Tratamos de conectarnos a la BD!");
 mysql.createPool({
@@ -37,17 +38,25 @@ mysql.createPool({
 
     // rest endpoint
     app.use('/rest', restMiddleware);
-
-    // graphql endpoint
-    app.get('/graphql', graphqlMiddleware);
-    app.post('/graphql', graphqlMiddleware);
     
-    //
     app.get('/', (req, res) => {
         debug(`Tenemos objeto pool? =>`, !!req.pool);
         res.status(200).end(`Hola mundo!`);
     }); // app.post('/' ...
     
+    // agregamos el middleware de Apollo
+    const server = new ApolloServer({
+        schema,
+        formatError: err => {
+            debug(`/graphql => ${err.stack}`);
+            return err;
+        },
+
+        context: async ({ req }) => ({ pool: req.pool })
+        // tracing: true,
+    }); // ApolloServer ...
+
+    server.applyMiddleware({ app });
 
     app.listen(3001, function () {
         console.log('Servidor está corriendo en el puerto 3001');

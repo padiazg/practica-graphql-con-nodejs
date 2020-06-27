@@ -1,16 +1,36 @@
-const graphqlHTTP = require('express-graphql');
-const { schema } = require("./schema");
-const { Authors } = require("./resolvers");
+const { makeExecutableSchema } = require('graphql-tools');
+const schema = require('./schema');
+const { Authors, Posts } = require("./resolvers");
+
+const { getPostsByAuthor } = require("./common.js");
+
+// const debugResolver = async (root, args, context, info) => {
+//     console.log("root =>", JSON.stringify(root, null, 2));
+//     console.log("args =>", JSON.stringify(args, null, 2));
+//     console.log("context =>", context.pool);
+// }
 
 // resolvers
-const root = {
-    authors: async (params, req, context, info) => {
-        return await new Authors(params, req.pool);
-    } // authors ...
+const resolvers = {
+    Query: {
+        authors: async (root, params, context) => await new Authors(params, context.pool),
+        posts: async (root, params, context) => await new Posts(params, context.pool),
+    },
+    Post: {
+        author: async (root, params, context) => {
+            const author = new Authors({id: root.author_id}, context.pool);
+            const list = await author.list();
+            return list[0];
+        }
+    },
+    Author: {
+        posts: async (root, params, context) => {
+            return await getPostsByAuthor(context.pool, root.id);
+        }
+    }
 }; // root ...
 
-module.exports = graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
+module.exports = makeExecutableSchema({
+    typeDefs: schema,
+    resolvers
 });

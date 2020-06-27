@@ -12,8 +12,7 @@ exports.getAuthors = async (pool, {id, limit, offset}) => {
 
 exports.getAuthorsCount = async (pool) => {
     debug(`getAuthorsCount`);
-    let sql = `SELECT count(*) AS count FROM authors`;    
-    return await pool.query(sql);
+    return await pool.query(`SELECT count(*) AS count FROM authors`);
 } // getAuthorsCount ...
 
 exports.getPosts = async (pool, {id, limit, offset}) => {
@@ -27,6 +26,15 @@ exports.getPosts = async (pool, {id, limit, offset}) => {
 
 exports.getPostsCount = async (pool) => {
     debug(`getPostsCount`);
-    let sql = `SELECT count(*) AS count FROM posts`;
-    return await pool.query(sql);
+    return await pool.query(`SELECT count(*) AS count FROM posts`);
 } // getPostsCount ...
+
+exports.getPostsByAuthor = async (pool, authorId) => {
+    debug(`getPostsByAuthor | authorId => ${authorId}`);
+    return await pool.query(`SELECT * FROM posts WHERE author_id=${authorId}`);
+}
+
+exports.getPostsByAuthorCount = async (pool, authorId) => {
+    debug(`getPostsByAuthorCount | authorId => ${authorId}`);
+    return await pool.query(`SELECT count(*) AS count FROM posts WHERE author_id=${authorId}`);
+}
