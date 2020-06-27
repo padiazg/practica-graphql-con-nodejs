@@ -1,6 +1,6 @@
-const { buildSchema } = require('graphql');
+const { gql } = require("apollo-server-express");
 
-exports.schema = buildSchema(`
+module.exports = gql`
 scalar Date
 
 type Author {
@@ -10,11 +10,17 @@ type Author {
     email: String
     birthdate: Date
     added: Date
+    posts: [Post]
 }
 
 type Post {
     id: Int!
     title: String!
+    author_id: Int!
+    description: String
+    content: String
+    date: Date
+    author: Author
 }
 
 type Authors {
@@ -40,4 +46,4 @@ type Query {
         id: Int
     ): Posts
 }
-`);
+`;
